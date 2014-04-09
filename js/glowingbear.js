@@ -42,7 +42,6 @@ weechat.controller('WeechatCtrl', ['$rootScope', '$scope', '$store', '$timeout',
         'fontsize': '14px',
         'fontfamily': (utils.isMobileUi() ? 'sans-serif' : 'Inconsolata, Consolas, Monaco, Ubuntu Mono, monospace'),
         'readlineBindings': false,
-        'enableJSEmoji': (utils.isMobileUi() ? false : true),
         'enableMathjax': false,
         'customCSS': '',
         "currentlyViewedBuffers":{},
@@ -114,7 +113,7 @@ weechat.controller('WeechatCtrl', ['$rootScope', '$scope', '$store', '$timeout',
                     buffer.unread = 0;
                     buffer.notification = 0;
 
-                    // Trigger title and favico update
+                    // Trigger title update
                     $rootScope.$emit('notificationChanged');
                 }
 
@@ -219,7 +218,6 @@ weechat.controller('WeechatCtrl', ['$rootScope', '$scope', '$store', '$timeout',
         }
     });
 
-    $rootScope.favico = new Favico({animation: 'none'});
     $scope.notifications = notifications.unreadCount('notification');
     $scope.unread = notifications.unreadCount('unread');
 
@@ -227,10 +225,6 @@ weechat.controller('WeechatCtrl', ['$rootScope', '$scope', '$store', '$timeout',
         notifications.updateTitle();
         $scope.notifications = notifications.unreadCount('notification');
         $scope.unread = notifications.unreadCount('unread');
-
-        if (settings.useFavico && $rootScope.favico) {
-            notifications.updateFavico();
-        }
     });
 
     $rootScope.$on('relayDisconnect', function() {
@@ -356,19 +350,6 @@ weechat.controller('WeechatCtrl', ['$rootScope', '$scope', '$store', '$timeout',
     // Watch model and update channel sorting when it changes
     settings.addCallback('orderbyserver', function(orderbyserver) {
         $rootScope.predicate = orderbyserver ? 'serverSortKey' : 'number';
-    });
-
-    settings.addCallback('useFavico', function(useFavico) {
-        // this check is necessary as this is called on page load, too
-        if (!$rootScope.connected) {
-            return;
-        }
-        if (useFavico) {
-            notifications.updateFavico();
-        } else {
-            $rootScope.favico.reset();
-            notifications.updateBadge('');
-        }
     });
 
     // To prevent unnecessary loading times for users who don't
@@ -788,7 +769,6 @@ weechat.controller('WeechatCtrl', ['$rootScope', '$scope', '$store', '$timeout',
             if ($rootScope.connected) {
                 $scope.disconnect();
             }
-            $scope.favico.reset();
         }
     };
 
